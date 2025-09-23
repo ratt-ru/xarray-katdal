@@ -309,17 +309,15 @@ class XArrayMSv2Facade:
 
       pol_map = {"HH": "XX", "HV": "XY", "VH": "YX", "VV": "YY"}
 
+      antennas = self._dataset.ants
+      ant1_names = [antennas[a].name for a in cp_info.ant1_index]
+      ant2_names = [antennas[a].name for a in cp_info.ant2_index]
+
       coords = {
         "time": ("time", time_mjds, time_attrs),
         "baseline_id": ("baseline_id", np.arange(self.nbl)),
-        "baseline_antenna1_name": (
-          "baseline_id",
-          [f"ANTENNA-{a}" for a in cp_info.ant1_index],
-        ),
-        "baseline_antenna2_name": (
-          "baseline_id",
-          [f"ANTENNA-{a}" for a in cp_info.ant2_index],
-        ),
+        "baseline_antenna1_name": ("baseline_id", ant1_names),
+        "baseline_antenna2_name": ("baseline_id", ant2_names),
         "frequency": ("frequency", spw.channel_freqs, frequency_attrs),
         "polarization": (
           "polarization",
