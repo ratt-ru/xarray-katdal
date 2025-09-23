@@ -1,6 +1,6 @@
 [project]
 name = "xarray-katdal"
-version = "0.0.1"
+version = "0.0.2"
 description = "Add your description here"
 readme = "README.rst"
 authors = [
@@ -47,7 +47,7 @@ extend-select = ["I"]
 # github_url = "https://github.com/<user or organization>/<project>/"
 
 [tool.tbump.version]
-current = "0.0.1"
+current = "0.0.2"
 
 # Example of a semver regexp.
 # Make sure this matches current_version before
