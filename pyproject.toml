@@ -1,0 +1,42 @@
+[project]
+name = "xarray-katdal"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Simon Perkins", email = "simon.perkins@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "katdal>=0.23",
+    "xarray>=2024.7.0",
+]
+
+[project.optional-dependencies]
+testing = [
+    "pytest>=8.4.2",
+    "zarr>=2.18.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.1",
+    "tbump>=6.11.0",
+]
+
+[project.entry-points."xarray.backends"]
+"xarray-katdal" = "xarray_katdal.entrypoint:KatdalEntryPoint"
+
+[tool.ruff]
+line-length = 88
+indent-width = 2
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I001"]
+extend-select = ["I"]
