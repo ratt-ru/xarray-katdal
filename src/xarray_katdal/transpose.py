@@ -37,6 +37,14 @@ def transpose_impl(in_data, cp_index, data_type_literal, row_literal):
   raise NotImplementedError
 
 
+def flag_get_value(v):
+  return v != 0
+
+
+def data_get_value(v):
+  return v
+
+
 @overload(transpose_impl, jit_options=JIT_OPTIONS, prefer_literal=True)
 def nb_transpose(in_data, cp_index, data_type_literal, row_literal):
   if not isinstance(in_data, types.Array) or in_data.ndim != 3:
@@ -57,13 +65,13 @@ def nb_transpose(in_data, cp_index, data_type_literal, row_literal):
   ROW_DIM = row_literal.literal_value
 
   if DATA_TYPE == "flags":
-    GET_VALUE = lambda v: v != 0
+    GET_VALUE = flag_get_value
     DEFAULT_VALUE = np.bool_(True)
   elif DATA_TYPE == "vis":
-    GET_VALUE = lambda v: v
+    GET_VALUE = data_get_value
     DEFAULT_VALUE = in_data.dtype(0 + 0j)
   elif DATA_TYPE == "weights":
-    GET_VALUE = lambda v: v
+    GET_VALUE = data_get_value
     DEFAULT_VALUE = in_data.dtype(0)
   else:
     raise TypingError(f"data_type {DATA_TYPE} is not supported")

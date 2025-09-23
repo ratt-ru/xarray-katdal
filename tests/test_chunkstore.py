@@ -1,14 +1,10 @@
 import pytest
 
+from xarray_katdal.msv2_facade import XArrayMSv2Facade
+
 xarray = pytest.importorskip("xarray")
 katdal = pytest.importorskip("katdal")
 katpoint = pytest.importorskip("katpoint")
-
-import dask
-import numpy as np
-from numpy.testing import assert_array_equal
-
-from xarray_katdal.msv2_facade import XArrayMSv2Facade
 
 
 @pytest.mark.parametrize(
@@ -35,12 +31,12 @@ def test_katdal_import(
 ):
   facade = XArrayMSv2Facade(katdal_dataset, not auto_corrs, view_type)
   xds, sub_xds = facade.xarray_datasets()
-  breakpoint()
-  return
+  assert len(xds) > 0
 
   # Reintroduce the shutil.rmtree and remote the tmp_path_factory
   # to test in the local directory
   # shutil.rmtree(out_store, ignore_errors=True)
+  """
   out_store = tmp_path_factory.mktemp("output") / out_store
 
   writes = [
@@ -67,8 +63,8 @@ def test_katdal_import(
   assert_array_equal(facade.cp_info.cp_index.ravel(), np.arange(nbl * ncorr))
 
   def assert_transposed_equal(a, e):
-    """Simple transpose of katdal (time, chan, corrprod) to
-    (time, bl, chan, corr)."""
+    # Simple transpose of katdal (time, chan, corrprod) to
+    # (time, bl, chan, corr).
     # MinimalDataset uses 1 timestap as a slew scan
     # which is not returned here
     t = a.reshape(ntime - 1, nchan, nbl, ncorr).transpose(0, 2, 1, 3)
@@ -78,6 +74,7 @@ def test_katdal_import(
   assert_transposed_equal(test_data[1:, ...], read_xds.DATA.values)
   assert_transposed_equal(test_weights[1:, ...], read_xds.WEIGHT_SPECTRUM.values)
   assert_transposed_equal(test_flags[1:, ...], read_xds.FLAG.values)
+  """
 
 
 @pytest.mark.skip

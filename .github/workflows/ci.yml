@@ -41,10 +41,11 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Smoke test
-        run: |
-          pip install .
-          python -c "import xarray_katdal"
+      - name: Run xarray-katdal
+        run: pip install .[testing]
+
+      - name: Test xarray-katdal
+        run: py.test -s -vvv tests
 
       # - name: Debug with tmate on failure
       #   if: ${{ failure() }}

@@ -20,7 +20,7 @@
 
 from functools import partial
 from operator import getitem
-from typing import Literal
+from typing import Dict, List, Literal
 
 import dask.array as da
 import numpy as np
@@ -77,18 +77,20 @@ class XArrayMSv2Facade:
 
     assert view_type in {"msv2", "msv4"}
 
+    chunks_list: List[Dict[str, int]]
+
     if chunks is None:
-      chunks = [{"time": DEFAULT_TIME_CHUNKS}]
+      chunks_list = [{"time": DEFAULT_TIME_CHUNKS}]
     elif isinstance(chunks, dict):
-      chunks = [chunks]
+      chunks_list = [chunks]
     elif not isinstance(chunks, list) and not all(isinstance(c, dict) for c in chunks):
       raise TypeError(f"{chunks} must a dictionary or list of dictionaries")
     elif len(chunks) == 0:
-      chunks.append([{"time": DEFAULT_TIME_CHUNKS}])
+      chunks_list.append({"time": DEFAULT_TIME_CHUNKS})
 
     xformed_chunks = []
 
-    for ds_chunks in chunks:
+    for ds_chunks in chunks_list:
       if self.is_msv4:
         xformed_chunks.append(ds_chunks)
       else:
@@ -448,7 +450,8 @@ class XArrayMSv2Facade:
           ("row", "receptors", "receptors-2"),
           np.array([np.eye(2, dtype=np.complex64) for _ in range(nfeeds)]),
         ),
-        # Position of feed relative to feed reference position (double, 1-dim, shape=(3,))
+        # Position of feed relative to feed reference position
+        # (double, 1-dim, shape=(3,))
         "POSITION": (("row", "xyz"), np.zeros((nfeeds, 3), np.float64)),
         # The reference angle for polarisation (double, 1-dim). A parallactic angle of
         # 0 means that V is aligned to x (celestial North), but we are mapping H to x
