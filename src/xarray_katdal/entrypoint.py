@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Iterable
 from urllib.parse import urlsplit
 
 import katdal
-
 from xarray import DataTree
 from xarray.backends import BackendEntrypoint
 from xarray.backends.common import AbstractDataStore
@@ -42,16 +41,17 @@ class KatdalEntryPoint(BackendEntrypoint):
       )
     )
 
-
-  def open_datatree(self, filename_or_obj, *, drop_variables = None):
-    group_dicts = self.open_groups_as_dict(filename_or_obj, drop_variables=drop_variables)
+  def open_datatree(self, filename_or_obj, *, drop_variables=None):
+    group_dicts = self.open_groups_as_dict(
+      filename_or_obj, drop_variables=drop_variables
+    )
     return DataTree.from_dict(group_dicts)
 
-
   def open_groups_as_dict(
-    self, filename_or_obj: str | os.PathLike[Any] | BufferedIOBase | AbstractDataStore,
+    self,
+    filename_or_obj: str | os.PathLike[Any] | BufferedIOBase | AbstractDataStore,
     *,
-    drop_variables: str | Iterable[str] | None = None
+    drop_variables: str | Iterable[str] | None = None,
   ):
     katds = katdal.open(filename_or_obj)
     facade = XArrayMSv2Facade(katds, no_auto=True, view_type="msv4")
