@@ -1,6 +1,6 @@
 [project]
 name = "xarray-katdal"
-version = "0.1.0"
+version = "0.0.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -40,3 +40,32 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["F", "E", "W", "I001"]
 extend-select = ["I"]
+
+
+[tool.tbump]
+# Uncomment this if your project is hosted on GitHub:
+# github_url = "https://github.com/<user or organization>/<project>/"
+
+[tool.tbump.version]
+current = "0.0.0"
+
+# Example of a semver regexp.
+# Make sure this matches current_version before
+# using tbump
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "{new_version}"
+
+# For each file to patch, add a [[tool.tbump.file]] config
+# section containing the path of the file, relative to the
+# tbump.toml location.
+[[tool.tbump.file]]
+src = "pyproject.toml"
