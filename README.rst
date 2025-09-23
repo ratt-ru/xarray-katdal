@@ -1,5 +1,5 @@
-xarray views of the MeerKAT archive
-===================================
+xarray views over the MeerKAT archive
+=====================================
 
 
 .. code-block:: bash
