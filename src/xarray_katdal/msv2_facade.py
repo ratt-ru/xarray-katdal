@@ -18,7 +18,9 @@
 # limitations under the License.
 ################################################################################
 
+from datetime import datetime, timezone
 from functools import partial
+from importlib.metadata import version as importlib_version
 from operator import getitem
 from typing import Dict, List, Literal
 
@@ -137,7 +139,7 @@ class XArrayMSv2Facade:
     return self._cp_info.cp_index.shape[1]
 
   def _main_xarray_factory(
-    self, field_id, state_id, scan_index, scan_state, target, chunks
+    self, field_id, state_id, scan_index, state_tag, scan_state, target, chunks
   ):
     # Extract numpy and dask products
     dataset = self._dataset
@@ -221,6 +223,7 @@ class XArrayMSv2Facade:
 
     data_vars = {}
     coords = {}
+    attrs = {}
 
     if self.is_msv2:
       primary_dims = ("row",)
@@ -280,22 +283,22 @@ class XArrayMSv2Facade:
         "type": "quantity",
         "units": "s",
         "integration_time": {
+          "data": float(dataset.dump_period),
           "attrs": {
             "type": "quantity",
             "units": "s",
-            "data": dataset.dump_period,
-          }
+          },
         },
       }
 
       frequency_attrs = {
         "spectral_window_name": f"{spw.band}-band",
         "channel_width": {
-          "data": spw.channel_width,
+          "data": float(spw.channel_width),
           "attrs": {"type": "quantity", "units": "Hz"},
         },
         "reference_frequency": {
-          "data": spw.centre_freq,
+          "data": float(spw.centre_freq),
           "attrs": {
             "type": "spectral_coord",
             "observer": "REST",
@@ -313,20 +316,40 @@ class XArrayMSv2Facade:
       ant1_names = [antennas[a].name for a in cp_info.ant1_index]
       ant2_names = [antennas[a].name for a in cp_info.ant2_index]
 
-      coords = {
-        "time": ("time", time_mjds, time_attrs),
-        "baseline_id": ("baseline_id", np.arange(self.nbl)),
-        "baseline_antenna1_name": ("baseline_id", ant1_names),
-        "baseline_antenna2_name": ("baseline_id", ant2_names),
-        "frequency": ("frequency", spw.channel_freqs, frequency_attrs),
-        "polarization": (
-          "polarization",
-          [pol_map[p] for p in self._pols_to_use],
-        ),
-        "uvw_label": ("uvw_label", ["u", "v", "w"]),
-      }
+      coords.update(
+        {
+          "time": ("time", time_mjds, time_attrs),
+          "baseline_id": ("baseline_id", np.arange(self.nbl)),
+          "baseline_antenna1_name": ("baseline_id", ant1_names),
+          "baseline_antenna2_name": ("baseline_id", ant2_names),
+          "frequency": ("frequency", spw.channel_freqs, frequency_attrs),
+          "polarization": (
+            "polarization",
+            [pol_map[p] for p in self._pols_to_use],
+          ),
+          "uvw_label": ("uvw_label", ["u", "v", "w"]),
+        }
+      )
 
-    return xarray.Dataset(data_vars=data_vars, coords=coords)
+      attrs.update(
+        {
+          "creator": {
+            "software": "xarray-katdal",
+            "version": importlib_version("xarray-katdal"),
+          },
+          "creation_date": datetime.now(timezone.utc).isoformat(),
+          "processor_info": {"sub_type": "MEERKAT", "type": "CORRELATOR"},
+          "type": "visibility",
+          "observation_info": {
+            "intents": state_tag.split(","),
+            "observer": ["observed"],
+            "project": "project",
+            "release_date": datetime.now(timezone.utc).isoformat(),
+          },
+        }
+      )
+
+    return xarray.Dataset(data_vars=data_vars, coords=coords, attrs=attrs)
 
   def _antenna_xarray_factory(self):
     antennas = self._dataset.ants
@@ -602,7 +625,7 @@ class XArrayMSv2Facade:
 
       main_xds.append(
         self._main_xarray_factory(
-          field_id, state_id, scan_index, scan_state, target, chunks
+          field_id, state_id, scan_index, state_tag, scan_state, target, chunks
         )
       )
 
