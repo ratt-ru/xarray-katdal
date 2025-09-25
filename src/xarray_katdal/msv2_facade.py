@@ -318,7 +318,7 @@ class XArrayMSv2Facade:
 
       coords.update(
         {
-          "time": ("time", time_mjds, time_attrs),
+          "time": ("time", time_utc, time_attrs),
           "baseline_id": ("baseline_id", np.arange(self.nbl)),
           "baseline_antenna1_name": ("baseline_id", ant1_names),
           "baseline_antenna2_name": ("baseline_id", ant2_names),
